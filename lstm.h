@@ -6,7 +6,7 @@ using namespace std;
 
 #define LEARNING_RATE	0.0001
 #define RANDOM_VALUE() ((double)rand()/RAND_MAX*2-1)	//-1~1随机
-#define FOR(i,N) for(int i;i<N;++i)
+#define FOR(i,N) for(int i=0;i<N;++i)
 
 typedef float DataType;
 

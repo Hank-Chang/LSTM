@@ -147,10 +147,121 @@ Lstm::Lstm(int innode, int hidenode, int outnode){
     _B_Y = (double*)malloc(sizeof(double)*_outNodeNum);
 
 	renewWeights();
+
+    cout<<"Lstm instance inited."<<endl;
 }
 
 Lstm::~Lstm(){
 	resetStates();
+
+    FOR(i, _inNodeNum){
+        if(_W_I[i]!=NULL){
+            free(_W_I[i]);
+            _W_I[i]=NULL;
+        }
+        if(_W_F[i]!=NULL){
+            free(_W_F[i]);
+            _W_F[i]=NULL;
+        }
+        if(_W_O[i]!=NULL){
+            free(_W_O[i]);
+            _W_O[i]=NULL;
+        }
+        if(_W_G[i]!=NULL){
+            free(_W_G[i]);
+            _W_G[i]=NULL;
+        }
+    }
+    if(_W_I!=NULL){
+        free(_W_I);
+        _W_I=NULL;
+    }
+    if(_W_F!=NULL){
+        free(_W_F);
+        _W_F=NULL;
+    }
+    if(_W_O!=NULL){
+        free(_W_O);
+        _W_O=NULL;
+    }
+    if(_W_G!=NULL){
+        free(_W_G);
+        _W_G=NULL;
+    }
+    cout<<"free w."<<endl;
+
+    FOR(i, _hideNodeNum){
+        if(_U_I[i]!=NULL){
+            free(_U_I[i]);
+            _U_I[i]=NULL;
+        }
+        if(_U_F[i]!=NULL){
+            free(_U_F[i]);
+            _U_F[i]=NULL;
+        }
+        if(_U_O[i]!=NULL){
+            free(_U_O[i]);
+            _U_O[i]=NULL;
+        }
+        if(_U_G[i]!=NULL){
+            free(_U_G[i]);
+            _U_G[i]=NULL;
+        }
+    }
+    if(_U_I!=NULL){
+        free(_U_I);
+        _U_I=NULL;
+    }
+    if(_U_F!=NULL){
+        free(_U_F);
+        _U_F=NULL;
+    }
+    if(_U_O!=NULL){
+        free(_U_O);
+        _U_O=NULL;
+    }
+    if(_U_G!=NULL){
+        free(_U_G);
+        _U_G=NULL;
+    }
+    cout<<"free u."<<endl;
+
+
+    if(_B_I!=NULL){
+        free(_B_I);
+        _B_I=NULL;
+    }
+    if(_B_F!=NULL){
+        free(_B_F);
+        _B_F=NULL;
+    }
+    if(_B_O!=NULL){
+        free(_B_O);
+        _B_O=NULL;
+    }
+    if(_B_G!=NULL){
+        free(_B_G);
+        _B_G=NULL;
+    }
+
+
+    FOR(i, _hideNodeNum){
+        if(_W_Y[i]!=NULL){
+            free(_W_Y[i]);
+            _W_Y[i]=NULL;
+        }
+    }
+    if(_W_Y!=NULL){
+        free(_W_Y);
+        _W_Y=NULL;
+    }
+    if(_B_Y!=NULL){
+        free(_B_Y);
+        _B_Y=NULL;
+    }
+    cout<<"free b."<<endl;
+
+    cout<<"Lstm instance has been destroyed."<<endl;
 }
 
 //使用均方差作为损失函数
