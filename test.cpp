@@ -13,6 +13,7 @@ email:	12623862@qq.com
 
 #include <iostream>
 #include <cmath>
+#include <stdlib.h>
 #include <vector>
 #include "lstm.h"
 
@@ -56,6 +57,7 @@ int main(){
 	Lstm *lstm = new Lstm(INPUT,HIDE,OUTPUT);
 
 	//投入训练
+	cout<<"/*** Learnning function: z=x^2-xy+y^2 ***/"<<endl;
 	lstm->train(trainSet, labelSet, 1000, 0, 0.000001);
 
 	//随机生成10组测试数据并对比真实函数结果和lstm所计算的结果。
@@ -66,7 +68,7 @@ int main(){
 		double *z=lstm->predict(test);
 		double rz=test_function(test[0],test[1]);
 		double diff=abs(z[0]-rz);
-		cout<<"test "<<i<<" z=("<<test[0]<<")^2-("<<test[0]<<")*("<<test[1]<<")+("<<test[1]<<")^2, predict z="<<z[0]<<",real z="<<rz<<",deviation＝"<<diff<<endl;
+		cout<<"test "<<i<<" x="<<test[0]<<",y="<<test[1]<<", predict z="<<z[0]<<",real z="<<rz<<",deviation＝"<<diff<<endl;
 		free(test);
 		free(z);
 	}
