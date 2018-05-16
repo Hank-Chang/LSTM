@@ -1,3 +1,11 @@
+/*
+LSTM的基础实现，供和我一样的初学者参考，欢迎交流、共同进步。
+
+author: 大火同学
+date:   2018/4/28
+email:  12623862@qq.com
+*/
+
 #include <cmath>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +32,13 @@ double dtanh(double y){
     return 1.0 - y * y;  
 }
 
-//权值初始化
+/*
+权值初始化
+参数：
+w、二维权值首地址
+x、行数
+y、列数
+*/
 void initW(double **w, int x, int y){
     FOR(i, x){
         FOR(j, y)
@@ -32,6 +46,9 @@ void initW(double **w, int x, int y){
     }
 }
 
+/*
+打印lstm cell单元的状态，用于调试
+*/
 void Lstm::showStates(){
 	FOR(s, _states.size()){
 		cout<<"states["<<s<<"]:"<<endl<<"I_G\t\tF_G\t\tO_G\t\tN_I\t\tS\t\tH"<<endl;
@@ -51,7 +68,9 @@ void Lstm::showStates(){
 	}
 }
 
-//清除单元状态
+/*
+清除单元状态
+*/
 void Lstm::resetStates(){
 	FOR(i, _states.size()){
 		delete _states[i];
@@ -59,6 +78,9 @@ void Lstm::resetStates(){
 	_states.clear();
 }
 
+/*
+打印权值，用于调试
+*/
 void Lstm::showWeights(){
 	cout<<"--------------------Wx+b=Y-----------------"<<endl;
 	FOR(i, _outNodeNum){
@@ -86,6 +108,9 @@ void Lstm::showWeights(){
     cout<<endl<<"---------------------------------------------------"<<endl;
 }
 
+/*
+初始化网络权值
+*/
 void Lstm::renewWeights(){
 	initW(_W_I, _inNodeNum, _hideNodeNum);
     initW(_U_I, _hideNodeNum, _hideNodeNum);
@@ -105,6 +130,13 @@ void Lstm::renewWeights(){
 }
 
 
+/*
+构造函数
+参数：
+innode、输入单元个数（特征数）
+hidenode、隐藏单元个数
+outnode、输出单元个数（结果维度）
+*/
 Lstm::Lstm(int innode, int hidenode, int outnode){
     _inNodeNum = innode;
     _hideNodeNum = hidenode;
@@ -151,6 +183,9 @@ Lstm::Lstm(int innode, int hidenode, int outnode){
     cout<<"Lstm instance inited."<<endl;
 }
 
+/*
+析构函数，释放内存
+*/
 Lstm::~Lstm(){
 	resetStates();
 
@@ -188,7 +223,6 @@ Lstm::~Lstm(){
         free(_W_G);
         _W_G=NULL;
     }
-    cout<<"free w."<<endl;
 
     FOR(i, _hideNodeNum){
         if(_U_I[i]!=NULL){
@@ -224,7 +258,6 @@ Lstm::~Lstm(){
         free(_U_G);
         _U_G=NULL;
     }
-    cout<<"free u."<<endl;
 
 
     if(_B_I!=NULL){
@@ -259,12 +292,16 @@ Lstm::~Lstm(){
         free(_B_Y);
         _B_Y=NULL;
     }
-    cout<<"free b."<<endl;
 
     cout<<"Lstm instance has been destroyed."<<endl;
 }
 
-//使用均方差作为损失函数
+/*
+计算训练集的损失
+参数：
+x、训练特征集
+y、训练标签集
+*/
 double Lstm::trainLoss(vector<DataType*> x, vector<DataType*> y){
 	if(x.size()<=0 || y.size()<=0 || x.size()!=y.size()) return 0;
 	double rmse = 0;
@@ -286,7 +323,13 @@ double Lstm::trainLoss(vector<DataType*> x, vector<DataType*> y){
 	return rmse;
 }
 
-//计算验证集损失
+
+/*
+计算验证集的损失，参数于上一个函数相同，通过_verification计算验证集的起始下标
+参数：
+x、训练特征集
+y、训练标签集
+*/
 double Lstm::verificationLoss(vector<DataType*> x, vector<DataType*> y){
 	if(x.size()<=0 || y.size()<=0 || x.size()!=y.size()) return 0;
 	double rmse = 0;
@@ -310,7 +353,11 @@ double Lstm::verificationLoss(vector<DataType*> x, vector<DataType*> y){
 }
 
 
-//单个样本正向传播
+/*
+单个样本正向传播
+参数：
+x、单个样本特征向量
+*/
 LstmStates *Lstm::forward(DataType *x){
 	if(x==NULL){
 		return 0;
@@ -380,7 +427,12 @@ LstmStates *Lstm::forward(DataType *x){
     return lstates;
 }
 
-//正向传播
+/*
+正向传播，暂未实现按batch_size计算。
+参数：
+trainSet、训练特征集，vector<特征向量（向量长度需与输入单元数量相同）>
+labelSet、训练标签集，vector<标签向量（向量长度需与输出单元数量相同）>
+*/
 void Lstm::forward(vector<DataType*> trainSet, vector<DataType*> labelSet){
 	int len = trainSet.size();
 	len -= _verification*len;//减去验证集
@@ -398,7 +450,12 @@ void Lstm::forward(vector<DataType*> trainSet, vector<DataType*> labelSet){
 	}
 }
 
-//反向传播,计算各个权重的偏导数
+/*
+反向传播,计算各个权重的偏导数
+参数：
+trainSet、训练特征集，vector<特征向量（向量长度需与输入单元数量相同）>
+deltas、存储每个权值偏导数的对象指针
+*/
 void Lstm::backward(vector<DataType*> trainSet, Deltas *deltas){
 	if(_states.size()<=0){
 		cout<<"need go forward first."<<endl;
@@ -526,7 +583,12 @@ void Lstm::backward(vector<DataType*> trainSet, Deltas *deltas){
 	return;
 }
 
-//根据各权值的偏导数更新权值
+/*
+根据各权值的偏导数更新权值
+参数：
+deltaSet、存储每个权值偏导数的对象指针
+epoche、当前迭代次数
+*/
 void Lstm::optimize(Deltas *deltaSet, int epoche){
     FOR(i, _outNodeNum){
     	FOR(j, _hideNodeNum){
@@ -557,6 +619,15 @@ void Lstm::optimize(Deltas *deltaSet, int epoche){
 }
 
 double _LEARNING_RATE = LEARNING_RATE;//用于sgd优化器的全局学习率
+/*
+训练网络
+参数：
+trainSet、训练特征集
+labelSet、训练标签集
+epoche、迭代次数
+verification、验证集的比例
+stopThreshold、提前停止阈值，当两次迭代结果的变化小于此阈值则停止
+*/
 void Lstm::train(vector<DataType*> trainSet, vector<DataType*> labelSet, int epoche, double verification, double stopThreshold){
 	if(trainSet.size()<=0 || labelSet.size()<=0 || trainSet.size()!=labelSet.size()){
 		cout<<"data set error!"<<endl;
@@ -588,7 +659,7 @@ void Lstm::train(vector<DataType*> trainSet, vector<DataType*> labelSet, int epo
     }
 
     Deltas *deltaSet = new Deltas(_inNodeNum, _hideNodeNum, _outNodeNum);
-    cout<<"deltaset inited."<<endl;
+    cout<<"deltaset inited. start trainning."<<endl;
 	FOR(e, epoche){	
 		//每次epoche清除单元状态
 		resetStates();
@@ -606,7 +677,7 @@ void Lstm::train(vector<DataType*> trainSet, vector<DataType*> labelSet, int epo
 		double verRmse = verificationLoss(trainSet, labelSet);
 		// cout<<"epoche:"<<e<<"|rmse:"<<trainRmse<<endl;
 		if(e>0 && abs(trainRmse-lastTrainRmse) < stopThreshold){//变化足够小
-			// cout<<"train rmse got tiny diff, stop in epoche:"<<e<<endl;
+			cout<<"train rmse got tiny diff, stop in epoche:"<<e<<endl;
 			break;
 		}
 
@@ -623,7 +694,11 @@ void Lstm::train(vector<DataType*> trainSet, vector<DataType*> labelSet, int epo
     deltaSet = NULL;
 }
 
-//预测单个样本
+/*
+预测单个样本
+参数：
+x、需预测样本的特征集
+*/
 DataType *Lstm::predict(DataType *x){
     // cout<<"predict X>"<<endl;
     // FOR(i, _inNodeNum) cout<<x[i]<<",";

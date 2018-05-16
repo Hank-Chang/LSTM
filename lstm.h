@@ -1,3 +1,11 @@
+/*
+LSTM的基础实现，供和我一样的初学者参考，欢迎交流、共同进步。
+
+author: 大火同学
+date:   2018/4/28
+email:  12623862@qq.com
+*/
+
 #ifndef __H_LSTM_H__
 #define __H_LSTM_H__
 
@@ -8,7 +16,7 @@ using namespace std;
 #define RANDOM_VALUE() ((double)rand()/RAND_MAX*2-1)	//-1~1随机
 #define FOR(i,N) for(int i=0;i<N;++i)
 
-typedef float DataType;
+typedef double DataType;
 
 class LstmStates{
 
